@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pastel Studio — Panel</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">Pastel Studio</div>
+      <div class="sub">Panel de gestión</div>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item" data-section="clientes"><span class="icon">◐</span> Clientes</li>
+      <li class="nav-item" data-section="presupuestos"><span class="icon">▤</span> Presupuestos</li>
+      <li class="nav-item" data-section="objetos"><span class="icon">◆</span> Objetos Pastel</li>
+      <li class="nav-item" data-section="stock"><span class="icon">▢</span> Stock</li>
+      <li class="nav-item" data-section="finanzas"><span class="icon">◈</span> Finanzas</li>
+    </ul>
+    <div class="sidebar-footer">Pastel Studio © <span id="year"></span></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h1 id="section-title">Clientes</h1>
+      <div class="actions" id="topbar-actions"></div>
+    </div>
+    <div class="content">
+
+      <!-- CLIENTES -->
+      <section class="section" id="section-clientes">
+        <div class="card">
+          <div class="card-header">
+            <h3>Todos los clientes</h3>
+            <button class="btn btn-primary" id="btn-new-client">+ Nuevo cliente</button>
+          </div>
+          <div id="clients-table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- PRESUPUESTOS -->
+      <section class="section" id="section-presupuestos">
+        <div class="card">
+          <div class="card-header">
+            <h3>Presupuestos</h3>
+            <div class="flex gap-8">
+              <select id="filter-client-presupuestos" class="client-select"></select>
+              <button class="btn btn-primary" id="btn-new-presupuesto">+ Nuevo presupuesto</button>
+            </div>
+          </div>
+          <div id="presupuestos-list"></div>
+        </div>
+      </section>
+
+      <!-- OBJETOS PASTEL -->
+      <section class="section" id="section-objetos">
+        <div class="card">
+          <div class="card-header">
+            <h3>Catálogo — líneas de producto</h3>
+            <button class="btn btn-primary" id="btn-new-linea">+ Nueva línea</button>
+          </div>
+          <div id="lineas-list"></div>
+        </div>
+      </section>
+
+      <!-- STOCK -->
+      <section class="section" id="section-stock">
+        <div class="card">
+          <div class="card-header">
+            <h3>Stock</h3>
+            <div class="flex gap-8">
+              <select id="filter-estado-stock">
+                <option value="">Todos los estados</option>
+                <option>Disponible</option>
+                <option>Reservado</option>
+                <option>En producción</option>
+                <option>Agotado</option>
+              </select>
+              <button class="btn btn-primary" id="btn-new-stock">+ Agregar</button>
+            </div>
+          </div>
+          <div id="stock-table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- FINANZAS -->
+      <section class="section" id="section-finanzas">
+        <div class="flex gap-12" style="margin-bottom:16px;">
+          <select id="finanzas-mes"></select>
+          <select id="finanzas-anio"></select>
+        </div>
+        <div class="kpi-grid" id="finanzas-kpis"></div>
+        <div class="card">
+          <div class="tabs">
+            <div class="tab active" data-tab="ingresos">Ingresos</div>
+            <div class="tab" data-tab="gastos">Gastos</div>
+            <div class="tab" data-tab="proveedores">Pagos a proveedores</div>
+            <div class="tab" data-tab="retiros">Retiros</div>
+          </div>
+          <div id="finanzas-tab-content"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+
+<script src="js/app.js"></script>
+<script src="js/clientes.js"></script>
+<script src="js/objetos.js"></script>
+<script src="js/presupuestos.js"></script>
+<script src="js/stock.js"></script>
+<script src="js/finanzas.js"></script>
+</body>
+</html>
