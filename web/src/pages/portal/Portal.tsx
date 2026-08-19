@@ -27,7 +27,7 @@ export default function Portal() {
     <div className="main-area" style={{ maxWidth: 900, margin: "0 auto" }}>
       <div className="topbar">
         <div>
-          <div className="brand">Pastel Studio</div>
+          <img src="/logo.png" alt="Pastel Studio" className="brand-logo-lg" />
           <p className="page-subtitle">Portal de {user?.nombre}</p>
         </div>
         <Button variant="ghost" onClick={logout}>Cerrar sesión</Button>

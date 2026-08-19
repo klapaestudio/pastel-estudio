@@ -73,7 +73,7 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">Pastel<span className="brand-dot">.</span>Studio</div>
+        <img src="/logo.png" alt="Pastel Studio" className="brand-logo" />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, overflowY: "auto" }}>
           {NAV.map((group) => {
             const items = group.items.filter((i) => i.roles.includes(user.role));

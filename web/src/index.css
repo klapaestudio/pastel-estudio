@@ -92,6 +92,19 @@ a { color: inherit; }
 
 .brand-dot { color: var(--accent); }
 
+.brand-logo {
+  display: block;
+  height: 26px;
+  width: auto;
+  padding: 6px 12px;
+}
+
+.brand-logo-lg {
+  display: block;
+  height: 36px;
+  width: auto;
+}
+
 .nav-group {
   display: flex;
   flex-direction: column;

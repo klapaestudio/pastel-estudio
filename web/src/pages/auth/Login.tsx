@@ -29,7 +29,7 @@ export default function Login() {
     <div className="login-shell">
       <div className="login-card card">
         <div style={{ marginBottom: 22 }}>
-          <div className="brand">Pastel Studio</div>
+          <img src="/logo.png" alt="Pastel Studio" className="brand-logo-lg" />
           <p className="muted" style={{ marginTop: 6 }}>Ingresá a tu cuenta</p>
         </div>
         <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
