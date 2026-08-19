@@ -1,5 +1,5 @@
 # --- Stage 1: build frontend (web/) ---
-FROM node:20-alpine AS web-build
+FROM node:20-slim AS web-build
 WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
@@ -7,7 +7,8 @@ COPY web/ .
 RUN npm run build
 
 # --- Stage 2: build backend (server/) ---
-FROM node:20-alpine AS server-build
+FROM node:20-slim AS server-build
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /server
 COPY server/package.json server/package-lock.json ./
 RUN npm ci
@@ -16,7 +17,8 @@ RUN npx prisma generate
 RUN npm run build
 
 # --- Stage 3: runtime image ---
-FROM node:20-alpine
+FROM node:20-slim
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Server: dist compilado, node_modules (incluye prisma CLI para el CMD), package.json y prisma/ (schema + migrations)
