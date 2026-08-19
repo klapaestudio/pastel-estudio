@@ -37,4 +37,4 @@ ENV NODE_ENV=production
 ENV PORT=4000
 EXPOSE $PORT
 
-CMD ["sh", "-c", "mkdir -p /app/data && npx prisma db push --skip-generate --accept-data-loss && npm run seed && node dist/index.js"]
+CMD ["sh", "-c", "mkdir -p /app/data && npx prisma migrate deploy && npm run seed && node dist/index.js"]
