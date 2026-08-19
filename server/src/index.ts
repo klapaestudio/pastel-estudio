@@ -16,7 +16,6 @@ import { agendaRouter } from "./routes/agenda";
 import { portalRouter } from "./routes/portal";
 import { configRouter } from "./routes/config";
 import { gastosRouter } from "./routes/gastos";
-import { adminSeedRouter } from "./routes/adminSeed";
 
 const app = express();
 app.use(cors());
@@ -38,7 +37,6 @@ app.use("/api/agenda", agendaRouter);
 app.use("/api/portal", portalRouter);
 app.use("/api/config", configRouter);
 app.use("/api/gastos", gastosRouter);
-app.use("/api/admin", adminSeedRouter);
 
 // Sirve el frontend compilado (mismo origen que la API). En runtime, __dirname
 // es la carpeta "dist" del server; web/dist vive como sibling de esa carpeta
