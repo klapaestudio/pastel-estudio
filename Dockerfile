@@ -21,11 +21,13 @@ FROM node:20-slim
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-# Server: dist compilado, node_modules (incluye prisma CLI para el CMD), package.json y prisma/ (schema + migrations)
+# Server: dist compilado, node_modules (incluye prisma CLI y tsx para el CMD), package.json,
+# prisma/ (schema + migrations + seed.ts) y src/ (seed.ts importa "../src/lib/prisma" via tsx)
 COPY --from=server-build /server/dist ./dist
 COPY --from=server-build /server/node_modules ./node_modules
 COPY --from=server-build /server/package.json ./package.json
 COPY --from=server-build /server/prisma ./prisma
+COPY --from=server-build /server/src ./src
 
 # Frontend compilado: sibling de dist/ (ver server/src/index.ts, que resuelve
 # __dirname/../web/dist para servir los estáticos)
@@ -35,4 +37,4 @@ ENV NODE_ENV=production
 ENV PORT=4000
 EXPOSE $PORT
 
-CMD ["sh", "-c", "mkdir -p /app/data && npx prisma db push --skip-generate --accept-data-loss && node dist/index.js"]
+CMD ["sh", "-c", "mkdir -p /app/data && npx prisma db push --skip-generate --accept-data-loss && npm run seed && node dist/index.js"]
