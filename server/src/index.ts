@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "path";
 import express from "express";
 import cors from "cors";
 import { authRouter } from "./routes/auth";
@@ -36,6 +37,17 @@ app.use("/api/agenda", agendaRouter);
 app.use("/api/portal", portalRouter);
 app.use("/api/config", configRouter);
 app.use("/api/gastos", gastosRouter);
+
+// Sirve el frontend compilado (mismo origen que la API). En runtime, __dirname
+// es la carpeta "dist" del server; web/dist vive como sibling de esa carpeta
+// (ver Dockerfile, stage final).
+const webDistPath = path.join(__dirname, "..", "web", "dist");
+app.use(express.static(webDistPath));
+
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
+  res.sendFile(path.join(webDistPath, "index.html"));
+});
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err);

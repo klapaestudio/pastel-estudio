@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+.venv
+**/.venv
+.git
+web/node_modules
+server/node_modules
+data
+**/data
+*.db
+**/*.db
+.env
+**/.env
