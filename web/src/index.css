@@ -292,6 +292,11 @@ a { color: inherit; }
 
 .card + .card { margin-top: 16px; }
 
+/* Contenedor con gap explícito y espaciado parejo entre bloques mixtos
+   (cards + grids) — el gap ya resuelve el espaciado, así que se anula el
+   margen automático entre cards para no duplicarlo. */
+.stack-16 > .card + .card { margin-top: 0; }
+
 .card-header {
   display: flex;
   align-items: center;
