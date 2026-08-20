@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../../lib/api";
 import { fmtMoney } from "../../lib/format";
-import { Card, StatTile } from "../../components/ui";
+import { Card, EmptyState, PageHeader, StatTile } from "../../components/ui";
 
-const ACCENT = "#A57442";
-const GRID = "rgba(0,0,0,0.08)";
-const AXIS = "rgba(0,0,0,0.55)";
+const ACCENT = "#1A1A1A";
+const GRID = "rgba(26,26,26,0.08)";
+const AXIS = "#A8A39A";
 
 interface MesTotal { mes: string; total: number; }
 interface Resumen {
@@ -19,7 +20,18 @@ interface Resumen {
   ventasPorCategoria: { categoria: string; monto: number; ganancia: number; rentabilidad: number }[];
   ventasPorPerfilCliente: { perfil: string; monto: number }[];
   masVendido: { tipoProducto: string; monto: number }[];
-  rentabilidadGeneral: { facturacion: number; costos: number; gastos: number; ganancia: number; rentabilidadPorcentaje: number };
+  cobradoEsteMes: number;
+  faltaCobrar: number;
+  clientesAtrasados: { contactoId: string; nombre: string; monto: number; cuotasAtrasadas: number; diasAtrasoMax: number }[];
+  rentabilidadGeneral: {
+    facturacion: number;
+    costos: number;
+    gastos: number;
+    ganancia: number;
+    rentabilidadPorcentaje: number;
+    cobrado: number;
+    meDeben: number;
+  };
 }
 
 function MonthlyBar({ data, dataKey, valueFmt }: { data: any[]; dataKey: string; valueFmt: (n: number) => string }) {
@@ -30,8 +42,8 @@ function MonthlyBar({ data, dataKey, valueFmt }: { data: any[]; dataKey: string;
         <CartesianGrid vertical={false} stroke={GRID} />
         <XAxis dataKey="mes" tick={{ fontSize: 11, fill: AXIS }} axisLine={{ stroke: GRID }} tickLine={false} />
         <YAxis tick={{ fontSize: 11, fill: AXIS }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => valueFmt(v)} />
-        <Tooltip formatter={(v: any) => valueFmt(Number(v))} contentStyle={{ borderRadius: 10, border: "1px solid rgba(0,0,0,0.1)", fontSize: 12.5 }} />
-        <Bar dataKey={dataKey} fill={ACCENT} radius={[4, 4, 0, 0]} maxBarSize={36} />
+        <Tooltip formatter={(v: any) => valueFmt(Number(v))} contentStyle={{ borderRadius: 0, border: "1px solid #1A1A1A", boxShadow: "none", fontSize: 12.5 }} />
+        <Bar dataKey={dataKey} fill={ACCENT} radius={[0, 0, 0, 0]} maxBarSize={36} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -45,7 +57,7 @@ function MonthlyLine({ data, dataKey, valueFmt }: { data: any[]; dataKey: string
         <CartesianGrid vertical={false} stroke={GRID} />
         <XAxis dataKey="mes" tick={{ fontSize: 11, fill: AXIS }} axisLine={{ stroke: GRID }} tickLine={false} />
         <YAxis tick={{ fontSize: 11, fill: AXIS }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => valueFmt(v)} />
-        <Tooltip formatter={(v: any) => valueFmt(Number(v))} contentStyle={{ borderRadius: 10, border: "1px solid rgba(0,0,0,0.1)", fontSize: 12.5 }} />
+        <Tooltip formatter={(v: any) => valueFmt(Number(v))} contentStyle={{ borderRadius: 0, border: "1px solid #1A1A1A", boxShadow: "none", fontSize: 12.5 }} />
         <Line type="monotone" dataKey={dataKey} stroke={ACCENT} strokeWidth={2} dot={{ r: 3, fill: ACCENT }} />
       </LineChart>
     </ResponsiveContainer>
@@ -59,9 +71,9 @@ function HorizontalBar({ data, xKey, yKey, valueFmt }: { data: any[]; xKey: stri
       <BarChart data={data} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 4 }}>
         <CartesianGrid horizontal={false} stroke={GRID} />
         <XAxis type="number" tick={{ fontSize: 11, fill: AXIS }} axisLine={false} tickLine={false} tickFormatter={(v) => valueFmt(v)} />
-        <YAxis type="category" dataKey={yKey} tick={{ fontSize: 12, fill: "#000" }} axisLine={false} tickLine={false} width={130} />
-        <Tooltip formatter={(v: any) => valueFmt(Number(v))} contentStyle={{ borderRadius: 10, border: "1px solid rgba(0,0,0,0.1)", fontSize: 12.5 }} />
-        <Bar dataKey={xKey} fill={ACCENT} radius={[0, 4, 4, 0]} maxBarSize={22} />
+        <YAxis type="category" dataKey={yKey} tick={{ fontSize: 12, fill: "#1A1A1A" }} axisLine={false} tickLine={false} width={130} />
+        <Tooltip formatter={(v: any) => valueFmt(Number(v))} contentStyle={{ borderRadius: 0, border: "1px solid #1A1A1A", boxShadow: "none", fontSize: 12.5 }} />
+        <Bar dataKey={xKey} fill={ACCENT} radius={[0, 0, 0, 0]} maxBarSize={22} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -76,24 +88,42 @@ export default function DashboardFinanzas() {
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Finanzas</p>
-          <h1 className="page-title">Dashboard financiero</h1>
-          <p className="page-subtitle">Cruce de Facturación y CRM</p>
-        </div>
+      <PageHeader number="04" eyebrow="General" title="Dashboard financiero" subtitle="Cruce de Facturación y CRM" />
+
+      <div className="grid grid-4" style={{ marginBottom: 16 }}>
+        <StatTile tone="accent" label="Cobrado este mes" value={fmtMoney(data.cobradoEsteMes)} />
+        <StatTile tone="sand" label="Falta cobrar" value={fmtMoney(data.faltaCobrar)} />
+        <StatTile tone={data.clientesAtrasados.length > 0 ? "ink" : "outline"} label="Clientes atrasados" value={data.clientesAtrasados.length} />
+        <StatTile tone="outline" label="Rentabilidad general" value={`${g.rentabilidadPorcentaje}%`} />
       </div>
 
-      <Card>
-        <div className="grid grid-4">
-          <StatTile label="Facturación total" value={fmtMoney(g.facturacion)} />
+      <Card title="Estado financiero" description="Facturado, costos, gastos y cuánto ya se cobró vs. lo que todavía deben los clientes.">
+        <div className="grid grid-3">
+          <StatTile label="Facturado" value={fmtMoney(g.facturacion)} />
           <StatTile label="Costos" value={fmtMoney(g.costos)} />
           <StatTile label="Gastos" value={fmtMoney(g.gastos)} />
-          <StatTile label="Ganancia" value={fmtMoney(g.ganancia)} />
+          <StatTile label="Rentabilidad" value={`${g.rentabilidadPorcentaje}%`} />
+          <StatTile label="Cobrado" value={fmtMoney(g.cobrado)} />
+          <StatTile label="Cuánto me deben" value={fmtMoney(g.meDeben)} />
         </div>
-        <div style={{ marginTop: 14 }}>
-          <StatTile label="Rentabilidad general" value={`${g.rentabilidadPorcentaje}%`} />
-        </div>
+      </Card>
+
+      <Card
+        title={`Clientes atrasados (${data.clientesAtrasados.length})`}
+        description="Clientes con cuotas pendientes de cobro cuya fecha ya pasó."
+      >
+        {data.clientesAtrasados.length === 0 && <EmptyState>Sin clientes atrasados por ahora.</EmptyState>}
+        {data.clientesAtrasados.map((c) => (
+          <Link to="/clientes" key={c.contactoId} className="alert-row">
+            <div>
+              <strong>{c.nombre}</strong>
+              <div className="muted" style={{ fontSize: 12.5 }}>
+                {c.cuotasAtrasadas} cuota{c.cuotasAtrasadas === 1 ? "" : "s"} vencida{c.cuotasAtrasadas === 1 ? "" : "s"} — {c.diasAtrasoMax} días de atraso máx.
+              </div>
+            </div>
+            <div className="mono">{fmtMoney(c.monto)}</div>
+          </Link>
+        ))}
       </Card>
 
       <div className="grid grid-2">
@@ -102,7 +132,7 @@ export default function DashboardFinanzas() {
         <Card title="Gastos mensuales"><MonthlyBar data={data.gastosMensual} dataKey="total" valueFmt={fmtMoney} /></Card>
         <Card title="Costos por mes"><MonthlyBar data={data.costosMensual} dataKey="total" valueFmt={fmtMoney} /></Card>
         <Card title="Ticket promedio — evolución"><MonthlyLine data={data.ticketPromedioMensual} dataKey="promedio" valueFmt={fmtMoney} /></Card>
-        <Card title="Retiros de socias por mes"><MonthlyBar data={data.retirosMensual} dataKey="total" valueFmt={fmtMoney} /></Card>
+        <Card title="Retiros por mes"><MonthlyBar data={data.retirosMensual} dataKey="total" valueFmt={fmtMoney} /></Card>
       </div>
 
       <div className="grid grid-2">

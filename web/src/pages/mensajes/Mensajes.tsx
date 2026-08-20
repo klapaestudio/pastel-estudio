@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
-import { Button, Card, EmptyState, Field, Input, Modal, Select, Textarea } from "../../components/ui";
+import { Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Textarea } from "../../components/ui";
 
 interface Mensaje { id: string; titulo: string; texto: string; categoriaId: string; }
 interface Categoria { id: string; nombre: string; orden: number; mensajes: Mensaje[]; }
@@ -48,13 +48,12 @@ export default function Mensajes() {
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Ventas</p>
-          <h1 className="page-title">Mensajes prearmados</h1>
-          <p className="page-subtitle">Biblioteca de textos por situación, con variables autocompletables</p>
-        </div>
-      </div>
+      <PageHeader
+        number="01"
+        eyebrow="General"
+        title="Mensajes prearmados"
+        subtitle="Biblioteca de textos por situación, con variables autocompletables"
+      />
 
       <Card title="Resolver variables contra un contacto (opcional)">
         <Select value={contactoSel} onChange={(e) => setContactoSel(e.target.value)} style={{ maxWidth: 320 }}>

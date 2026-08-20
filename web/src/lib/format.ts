@@ -13,6 +13,18 @@ export function toInputDate(d: string | Date | null | undefined): string {
   return date.toISOString().slice(0, 10);
 }
 
+export function fmtHora(d: string | Date | null | undefined): string {
+  if (!d) return "";
+  return new Date(d).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+}
+
+export const PRIORIDAD_LABEL: Record<string, string> = { BAJA: "Baja", MEDIA: "Media", ALTA: "Alta" };
+export const PRIORIDAD_BADGE_TONE: Record<string, "neutral" | "warning" | "negative"> = {
+  BAJA: "neutral",
+  MEDIA: "warning",
+  ALTA: "negative",
+};
+
 export const TIPO_PRODUCTO_LABEL: Record<string, string> = {
   COLECCION: "Colección",
   PERSONALIZADO: "Personalizado",

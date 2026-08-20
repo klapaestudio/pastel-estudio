@@ -36,7 +36,7 @@ export function ContactoAutocomplete({
   return (
     <div style={{ position: "relative" }}>
       <Input
-        placeholder="Buscar prospecto/cliente por nombre…"
+        placeholder="Buscar cliente potencial/cliente por nombre…"
         value={q}
         onChange={(e) => {
           setQ(e.target.value);
@@ -58,7 +58,7 @@ export function ContactoAutocomplete({
                 setOpen(false);
               }}
             >
-              {r.nombre} <span className="muted" style={{ fontSize: 12 }}>({r.etapa === "PROSPECTO" ? "prospecto" : "cliente"})</span>
+              {r.nombre} <span className="muted" style={{ fontSize: 12 }}>({r.etapa === "PROSPECTO" ? "cliente potencial" : "cliente"})</span>
             </div>
           ))}
         </div>

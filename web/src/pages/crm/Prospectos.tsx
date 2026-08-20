@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { api, downloadPresupuestoPdf, openPresupuestoPdf } from "../../lib/api";
 import { ESTADO_PROSPECTO_LABEL, etiquetaLabel, fmtDate, fmtMoney } from "../../lib/format";
 import { Contacto } from "../../lib/types";
-import { Badge, Button, EmptyState, Select, Input } from "../../components/ui";
+import { Badge, Button, EmptyState, PageHeader, Select, Input } from "../../components/ui";
 import { ContactoModal } from "./ContactoModal";
 
 function presupuestadorBase(tipo: string): string {
@@ -48,21 +48,20 @@ export default function Prospectos() {
   }
 
   async function remove(id: string) {
-    if (!confirm("¿Eliminar este prospecto?")) return;
+    if (!confirm("¿Eliminar este cliente potencial?")) return;
     await api.del(`/contactos/${id}`);
     load();
   }
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">CRM</p>
-          <h1 className="page-title">Prospectos</h1>
-          <p className="page-subtitle">Consultas en camino a convertirse en clientes</p>
-        </div>
-        <Button variant="primary" onClick={() => setEditing("new")}>+ Nuevo prospecto</Button>
-      </div>
+      <PageHeader
+        number="05"
+        eyebrow="CRM"
+        title="Clientes potenciales"
+        subtitle="Consultas en camino a convertirse en clientes"
+        actions={<Button variant="primary" onClick={() => setEditing("new")}>+ Nuevo cliente potencial</Button>}
+      />
 
       <div className="card" style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -84,7 +83,7 @@ export default function Prospectos() {
 
       <div className="card">
         {list.length === 0 ? (
-          <EmptyState>No hay prospectos que coincidan con el filtro.</EmptyState>
+          <EmptyState>No hay clientes potenciales que coincidan con el filtro.</EmptyState>
         ) : (
           <div className="table-wrap">
             <table className="data-table">

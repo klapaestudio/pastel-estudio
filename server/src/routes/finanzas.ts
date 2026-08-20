@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
+import { daysBetween } from "../lib/followup";
 
 export const finanzasRouter = Router();
 finanzasRouter.use(requireAuth, requireRole("ADMIN", "FINANZAS"));
@@ -122,6 +123,36 @@ finanzasRouter.get("/resumen", async (_req, res) => {
   const totalGastos = round2(cuotas.reduce((s, c) => s + c.gastos, 0) + totalGastosGenerales);
   const totalGanancia = round2(totalFacturacion - totalCostos - totalGastos);
   const rentabilidadGeneral = totalFacturacion > 0 ? round2((totalGanancia / totalFacturacion) * 100) : 0;
+  const totalCobrado = round2(cuotas.filter((c) => c.pagada).reduce((s, c) => s + c.monto, 0));
+  const totalMeDeben = round2(cuotas.filter((c) => !c.pagada).reduce((s, c) => s + c.monto, 0));
+
+  // Cobrado este mes (cuotas pagadas cuya fecha cae en el mes actual)
+  const hoy = new Date();
+  const mesActual = monthKey(hoy);
+  const cobradoEsteMes = round2(
+    cuotas.filter((c) => c.pagada && monthKey(c.fecha) === mesActual).reduce((s, c) => s + c.monto, 0)
+  );
+
+  // Falta cobrar: todas las cuotas pendientes de ingresar, pasadas o futuras
+  const faltaCobrar = totalMeDeben;
+
+  // Clientes atrasados: clientes con al menos una cuota pendiente ya vencida
+  const atrasadosPorContacto: Record<
+    string,
+    { contactoId: string; nombre: string; monto: number; cuotasAtrasadas: number; diasAtrasoMax: number }
+  > = {};
+  for (const c of cuotas) {
+    if (c.pagada || c.fecha >= hoy) continue;
+    const contacto = c.cobro.contacto;
+    const dias = daysBetween(c.fecha, hoy);
+    atrasadosPorContacto[contacto.id] ??= { contactoId: contacto.id, nombre: contacto.nombre, monto: 0, cuotasAtrasadas: 0, diasAtrasoMax: 0 };
+    atrasadosPorContacto[contacto.id].monto += c.monto;
+    atrasadosPorContacto[contacto.id].cuotasAtrasadas += 1;
+    atrasadosPorContacto[contacto.id].diasAtrasoMax = Math.max(atrasadosPorContacto[contacto.id].diasAtrasoMax, dias);
+  }
+  const clientesAtrasados = Object.values(atrasadosPorContacto)
+    .map((a) => ({ ...a, monto: round2(a.monto) }))
+    .sort((a, b) => b.diasAtrasoMax - a.diasAtrasoMax);
 
   res.json({
     facturacionMensual,
@@ -133,12 +164,17 @@ finanzasRouter.get("/resumen", async (_req, res) => {
     ventasPorCategoria,
     ventasPorPerfilCliente,
     masVendido,
+    cobradoEsteMes,
+    faltaCobrar,
+    clientesAtrasados,
     rentabilidadGeneral: {
       facturacion: totalFacturacion,
       costos: totalCostos,
       gastos: totalGastos,
       ganancia: totalGanancia,
       rentabilidadPorcentaje: rentabilidadGeneral,
+      cobrado: totalCobrado,
+      meDeben: totalMeDeben,
     },
   });
 });

@@ -80,11 +80,17 @@ facturacionRouter.post("/cobros/:id/cuotas", async (req, res) => {
 });
 
 facturacionRouter.put("/cuotas/:id", async (req, res) => {
-  const { fecha, monto, costos, gastos, pagada } = req.body;
+  const { fecha, monto, costos, gastos, pagada, fechaPago } = req.body;
   const data: any = {};
   if (fecha !== undefined) data.fecha = new Date(fecha);
   if (monto !== undefined) data.monto = monto;
-  if (pagada !== undefined) data.pagada = pagada;
+  if (pagada !== undefined) {
+    data.pagada = pagada;
+    // Registra cuándo se cobró — automático al marcar pagada, salvo que se mande una fecha puntual
+    data.fechaPago = pagada ? (fechaPago ? new Date(fechaPago) : new Date()) : null;
+  } else if (fechaPago !== undefined) {
+    data.fechaPago = fechaPago ? new Date(fechaPago) : null;
+  }
 
   if ((costos || 0) > 0 || (gastos || 0) > 0) {
     const cuota = await prisma.cuota.findUnique({ where: { id: req.params.id } });

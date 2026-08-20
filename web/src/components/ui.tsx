@@ -101,6 +101,35 @@ export function StatTile({ label, value, tone = "outline" }: { label: string; va
   );
 }
 
+// ── Page header (numerado, reemplaza el bloque manual "topbar") ──────────
+export function PageHeader({
+  number,
+  eyebrow,
+  title,
+  subtitle,
+  actions,
+}: {
+  number?: string;
+  eyebrow?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  actions?: ReactNode;
+}) {
+  return (
+    <div className="page-header">
+      <div className="page-header-main">
+        {number && <span className="page-header-number">{number}</span>}
+        <div>
+          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+          <h1 className="page-title">{title}</h1>
+          {subtitle && <p className="page-subtitle">{subtitle}</p>}
+        </div>
+      </div>
+      {actions && <div className="page-header-actions">{actions}</div>}
+    </div>
+  );
+}
+
 // ── Tabs ─────────────────────────────────────────────────────────────────
 export function Tabs({ tabs, active, onChange }: { tabs: { key: string; label: string }[]; active: string; onChange: (key: string) => void }) {
   return (

@@ -45,7 +45,7 @@ export function ContactoModal({
   }
 
   return (
-    <Modal title={contacto ? "Editar contacto" : etapa === "PROSPECTO" ? "Nuevo prospecto" : "Nuevo cliente"} onClose={onClose} wide>
+    <Modal title={contacto ? "Editar contacto" : etapa === "PROSPECTO" ? "Nuevo cliente potencial" : "Nuevo cliente"} onClose={onClose} wide>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div className="form-grid">
           <Field label="Nombre o razón social">

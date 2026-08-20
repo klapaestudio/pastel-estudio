@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api, downloadPresupuestoPdf, openPresupuestoPdf } from "../../lib/api";
 import { fmtDate, fmtMoney } from "../../lib/format";
 import { Presupuesto, PresupuestoItem } from "../../lib/types";
-import { Badge, Button, Card, EmptyState, Field, Input, Select, Textarea } from "../../components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Textarea } from "../../components/ui";
 import { ContactoAutocomplete } from "./ContactoAutocomplete";
 import { StockChecker } from "./StockChecker";
 import { ValoresAdicionalesEditor } from "./ValoresAdicionalesEditor";
@@ -42,19 +42,18 @@ export default function ObjetosPresupuestador() {
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Presupuestador</p>
-          <h1 className="page-title">Objetos personalizados</h1>
-          <p className="page-subtitle">Diseño, medidas, telas, mano de obra y materiales</p>
-        </div>
-        <Button variant="primary" onClick={() => setParams({ nuevo: "1" })}>+ Nuevo presupuesto</Button>
-      </div>
+      <PageHeader
+        number="07"
+        eyebrow="Presupuestos"
+        title="Objetos personalizados"
+        subtitle="Diseño, medidas, telas, mano de obra y materiales"
+        actions={<Button variant="primary" onClick={() => setParams({ nuevo: "1" })}>+ Nuevo presupuesto</Button>}
+      />
 
       <Card>
         {list.length === 0 ? <EmptyState>Todavía no armaste ningún presupuesto de objetos.</EmptyState> : (
           <table className="data-table">
-            <thead><tr><th>Título</th><th>Cliente/Prospecto</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+            <thead><tr><th>Título</th><th>Cliente / Cliente potencial</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead>
             <tbody>
               {list.map((p) => (
                 <tr key={p.id}>
@@ -132,19 +131,17 @@ function ObjetoEditor({ id, contactoId, onClose }: { id: string | null; contacto
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Objetos personalizados</p>
-          <h1 className="page-title">{id ? "Editar presupuesto" : "Nuevo presupuesto"}</h1>
-        </div>
-        <Button variant="ghost" onClick={onClose}>← Volver</Button>
-      </div>
+      <PageHeader
+        eyebrow="Objetos personalizados"
+        title={id ? "Editar presupuesto" : "Nuevo presupuesto"}
+        actions={<Button variant="ghost" onClick={onClose}>← Volver</Button>}
+      />
 
       <div className="grid" style={{ gridTemplateColumns: "2fr 1fr", alignItems: "start" }}>
         <div>
           <Card title="Datos generales">
             <div className="form-grid">
-              <Field label="Prospecto / Cliente">
+              <Field label="Cliente potencial / Cliente">
                 <ContactoAutocomplete value={contacto} onSelect={setContacto} />
               </Field>
               <Field label="Título"><Input value={form.titulo || ""} onChange={(e) => set("titulo", e.target.value)} /></Field>

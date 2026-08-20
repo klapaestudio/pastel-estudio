@@ -47,7 +47,7 @@ export default function Panel() {
         >
           {data.debeAProveedores.length === 0 && <EmptyState>Sin pagos pendientes a proveedores.</EmptyState>}
           {data.debeAProveedores.map((p) => (
-            <Link to="/proveedores" key={p.id} className="alert-row" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to="/proveedores" key={p.id} className="alert-row">
               <div>
                 <strong>{p.proveedor?.nombre}</strong> — {p.concepto}
                 <div className="muted" style={{ fontSize: 12.5 }}>Vence {fmtDate(p.fechaVencimiento)}</div>
@@ -63,7 +63,7 @@ export default function Panel() {
         >
           {data.leDebenACobrar.length === 0 && <EmptyState>Sin cuotas pendientes de cobro.</EmptyState>}
           {data.leDebenACobrar.map((c) => (
-            <Link to="/facturacion" key={c.id} className="alert-row" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to="/facturacion" key={c.id} className="alert-row">
               <div>
                 <strong>{c.cobro?.contacto?.nombre}</strong> — cuota {c.numero}
                 <div className="muted" style={{ fontSize: 12.5 }}>Vence {fmtDate(c.fecha)}</div>
@@ -77,7 +77,7 @@ export default function Panel() {
 
           {data.entregasPendientes.length === 0 && <EmptyState>Sin entregas próximas a vencer.</EmptyState>}
           {data.entregasPendientes.map((e) => (
-            <Link to={`/clientes`} key={e.contacto.id} className="alert-row" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to={`/clientes`} key={e.contacto.id} className="alert-row">
               <div>
                 <strong>{e.contacto.nombre}</strong>
                 <div className="muted" style={{ fontSize: 12.5 }}>Entrega {fmtDate(e.contacto.fechaEntrega)}</div>
@@ -91,7 +91,7 @@ export default function Panel() {
 
           {data.enviosPendientes.length === 0 && <EmptyState>Sin envíos por coordinar o despachar.</EmptyState>}
           {data.enviosPendientes.map((p) => (
-            <Link to="/presupuestador/objetos" key={p.id} className="alert-row" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to="/presupuestador/objetos" key={p.id} className="alert-row">
               <div>
                 <strong>{p.contacto?.nombre}</strong> — {p.titulo}
                 <div className="muted" style={{ fontSize: 12.5 }}>Estado envío: {p.envioEstado}</div>
@@ -100,11 +100,11 @@ export default function Panel() {
           ))}
         </Card>
 
-        <Card title={`Follow up de prospectos (${data.followUpProspectos.length})`} description="Prospectos a los que hay que retomar tras el presupuesto enviado.">
+        <Card title={`Follow up de clientes potenciales (${data.followUpProspectos.length})`} description="Clientes potenciales a los que hay que retomar tras el presupuesto enviado.">
 
-          {data.followUpProspectos.length === 0 && <EmptyState>Sin prospectos en seguimiento activo.</EmptyState>}
+          {data.followUpProspectos.length === 0 && <EmptyState>Sin clientes potenciales en seguimiento activo.</EmptyState>}
           {data.followUpProspectos.map((f) => (
-            <Link to="/prospectos" key={f.contacto.id} className="alert-row" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to="/prospectos" key={f.contacto.id} className="alert-row">
               <div>
                 <strong>{f.contacto.nombre}</strong>
                 <div className="muted" style={{ fontSize: 12.5 }}>
@@ -122,7 +122,7 @@ export default function Panel() {
 
           {data.followUpClientes.length === 0 && <EmptyState>Sin clientes fuera de su intervalo de recontacto.</EmptyState>}
           {data.followUpClientes.map((f) => (
-            <Link to="/clientes" key={f.contacto.id} className="alert-row" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to="/clientes" key={f.contacto.id} className="alert-row">
               <div>
                 <strong>{f.contacto.nombre}</strong>
                 <div className="muted" style={{ fontSize: 12.5 }}>Hace tiempo que no compra — contactalo</div>

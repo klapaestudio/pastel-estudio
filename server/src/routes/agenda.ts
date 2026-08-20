@@ -23,7 +23,7 @@ agendaRouter.get("/tareas", async (req, res) => {
 });
 
 agendaRouter.post("/tareas", async (req, res) => {
-  const { titulo, tipo, contactoId, fechaInicio, fechaFin, ubicacion, notas } = req.body;
+  const { titulo, tipo, contactoId, fechaInicio, fechaFin, todoElDia, prioridad, ubicacion, notas } = req.body;
   const t = await prisma.tareaAgenda.create({
     data: {
       titulo,
@@ -31,6 +31,8 @@ agendaRouter.post("/tareas", async (req, res) => {
       contactoId: contactoId || null,
       fechaInicio: new Date(fechaInicio),
       fechaFin: new Date(fechaFin),
+      todoElDia: !!todoElDia,
+      prioridad: prioridad || "MEDIA",
       ubicacion,
       notas,
     },
@@ -41,10 +43,11 @@ agendaRouter.post("/tareas", async (req, res) => {
 agendaRouter.put("/tareas/:id", async (req, res) => {
   const body = req.body;
   const data: any = {};
-  for (const f of ["titulo", "tipo", "ubicacion", "notas"]) if (body[f] !== undefined) data[f] = body[f];
+  for (const f of ["titulo", "tipo", "ubicacion", "notas", "prioridad"]) if (body[f] !== undefined) data[f] = body[f];
   if (body.contactoId !== undefined) data.contactoId = body.contactoId || null;
   if (body.fechaInicio !== undefined) data.fechaInicio = new Date(body.fechaInicio);
   if (body.fechaFin !== undefined) data.fechaFin = new Date(body.fechaFin);
+  if (body.todoElDia !== undefined) data.todoElDia = !!body.todoElDia;
   const t = await prisma.tareaAgenda.update({ where: { id: req.params.id }, data });
   res.json(t);
 });

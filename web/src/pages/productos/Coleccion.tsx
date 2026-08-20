@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { fmtMoney } from "../../lib/format";
-import { Badge, Button, Card, EmptyState, Field, Input, Modal, Select, Tabs } from "../../components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Tabs } from "../../components/ui";
 
 interface Material { id: string; nombre: string; unidad: string; costoActualizado: number; stockEstado: string; }
 interface ProductoMaterial { id?: string; materialId: string; cantidad: number; material?: Material; }
@@ -9,7 +9,7 @@ interface StockProducto { id: string; cantidad: number; tela?: string; embalaje:
 interface Producto {
   id: string; nombre: string; descripcion?: string; medidas?: string;
   manoObraEstructura: number; manoObraTapiceria: number; precioVenta: number;
-  moldeFileNombre?: string; moldeFileData?: string;
+  moldeFileNombre?: string; moldeFileData?: string; moldeUrl?: string;
   materiales: ProductoMaterial[]; stock: StockProducto[];
   costoCalculado: number; gananciaCalculada: number; stockMaterialesEstado: string;
 }
@@ -22,13 +22,7 @@ export default function Coleccion() {
   const [tab, setTab] = useState("productos");
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Producción</p>
-          <h1 className="page-title">Colección</h1>
-          <p className="page-subtitle">Fuente única de verdad de costos, precio de venta y ganancia</p>
-        </div>
-      </div>
+      <PageHeader number="09" eyebrow="Producción" title="Colección" subtitle="Fuente única de verdad de costos, precio de venta y ganancia" />
       <Tabs
         tabs={[
           { key: "productos", label: "Productos" },
@@ -66,7 +60,7 @@ function ProductosTab() {
       <Card>
         {list.length === 0 ? <EmptyState>No hay productos cargados todavía.</EmptyState> : (
           <table className="data-table">
-            <thead><tr><th>Producto</th><th>Costo</th><th>Precio venta</th><th>Ganancia</th><th>Stock materiales</th><th>Stock terminado</th><th></th></tr></thead>
+            <thead><tr><th>Producto</th><th>Costo</th><th>Precio venta</th><th>Ganancia</th><th>Stock materiales</th><th>Stock terminado</th><th>Moldería</th><th></th></tr></thead>
             <tbody>
               {list.map((p) => (
                 <tr key={p.id}>
@@ -76,6 +70,13 @@ function ProductosTab() {
                   <td className="mono">{fmtMoney(p.gananciaCalculada)}</td>
                   <td><Badge tone={stockTone(p.stockMaterialesEstado)}>{stockLabel(p.stockMaterialesEstado)}</Badge></td>
                   <td>{p.stock.reduce((s, x) => s + x.cantidad, 0)} u.</td>
+                  <td>
+                    {p.moldeUrl || p.moldeFileData ? (
+                      <Badge tone="positive">Linkeada</Badge>
+                    ) : (
+                      <Badge tone="neutral">Sin linkear</Badge>
+                    )}
+                  </td>
                   <td>
                     <div style={{ display: "flex", gap: 4 }}>
                       <Button size="sm" variant="ghost" onClick={() => setEditing(p)}>Editar</Button>
@@ -127,6 +128,14 @@ function ProductoModal({ producto, onClose, onSaved }: { producto: Producto | nu
           <Field label="Mano de obra — estructura"><Input type="number" value={form.manoObraEstructura ?? 0} onChange={(e) => setForm({ ...form, manoObraEstructura: Number(e.target.value) })} /></Field>
           <Field label="Mano de obra — tapicería"><Input type="number" value={form.manoObraTapiceria ?? 0} onChange={(e) => setForm({ ...form, manoObraTapiceria: Number(e.target.value) })} /></Field>
           <Field label="Precio de venta"><Input type="number" value={form.precioVenta ?? 0} onChange={(e) => setForm({ ...form, precioVenta: Number(e.target.value) })} /></Field>
+          <Field label="Link de moldería (Drive, Dropbox, etc.)">
+            <Input
+              type="url"
+              placeholder="https://…"
+              value={form.moldeUrl || ""}
+              onChange={(e) => setForm({ ...form, moldeUrl: e.target.value })}
+            />
+          </Field>
         </div>
 
         <Field label="Materiales">
@@ -287,15 +296,34 @@ function MolderiaTab() {
     reader.readAsDataURL(file);
   }
 
+  async function onLink(id: string, url: string, prev: string) {
+    if (url === prev) return;
+    await api.put(`/productos/${id}`, { moldeUrl: url });
+    load();
+  }
+
   return (
-    <Card title="Moldería" description="Archivo de moldería por producto, descargable desde acá.">
+    <Card title="Moldería" description="Cada producto puede tener un link externo (Drive, Dropbox, etc.) y/o un archivo subido directamente.">
       {list.length === 0 ? <EmptyState>No hay productos cargados todavía.</EmptyState> : (
         <table className="data-table">
-          <thead><tr><th>Producto</th><th>Archivo</th><th></th></tr></thead>
+          <thead><tr><th>Producto</th><th>Link de moldería</th><th>Archivo</th><th></th></tr></thead>
           <tbody>
             {list.map((p) => (
               <tr key={p.id}>
                 <td style={{ fontWeight: 600 }}>{p.nombre}</td>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <Input
+                      key={p.id}
+                      type="url"
+                      placeholder="Pegar link…"
+                      defaultValue={p.moldeUrl || ""}
+                      onBlur={(e) => onLink(p.id, e.target.value, p.moldeUrl || "")}
+                      style={{ maxWidth: 220 }}
+                    />
+                    {p.moldeUrl && <a className="link-accent" href={p.moldeUrl} target="_blank" rel="noreferrer">Abrir</a>}
+                  </div>
+                </td>
                 <td>
                   {p.moldeFileData ? (
                     <a className="link-accent" href={p.moldeFileData} download={p.moldeFileNombre}>{p.moldeFileNombre}</a>

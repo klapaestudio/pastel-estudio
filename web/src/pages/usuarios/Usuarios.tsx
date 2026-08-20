@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
-import { Badge, Button, Card, EmptyState, Field, Input, Modal, Select } from "../../components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select } from "../../components/ui";
 
 interface Usuario { id: string; email: string; nombre: string; role: string; activo: boolean; contactoId?: string | null; }
 interface ContactoLite { id: string; nombre: string; }
@@ -32,14 +32,13 @@ export default function Usuarios() {
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Administración</p>
-          <h1 className="page-title">Usuarios y permisos</h1>
-          <p className="page-subtitle">Roles con acceso diferenciado por módulo</p>
-        </div>
-        <Button variant="primary" onClick={() => setEditing("new")}>+ Nuevo usuario</Button>
-      </div>
+      <PageHeader
+        number="11"
+        eyebrow="Administración"
+        title="Usuarios y permisos"
+        subtitle="Roles con acceso diferenciado por módulo"
+        actions={<Button variant="primary" onClick={() => setEditing("new")}>+ Nuevo usuario</Button>}
+      />
       <Card>
         {list.length === 0 ? <EmptyState>No hay usuarios cargados.</EmptyState> : (
           <table className="data-table">

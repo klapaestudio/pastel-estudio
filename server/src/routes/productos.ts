@@ -59,6 +59,7 @@ productosRouter.post("/", async (req, res) => {
       precioVenta: body.precioVenta || 0,
       moldeFileNombre: body.moldeFileNombre,
       moldeFileData: body.moldeFileData,
+      moldeUrl: body.moldeUrl,
       materiales: { create: materiales.map((m) => ({ materialId: m.materialId, cantidad: m.cantidad })) },
     },
     include: { materiales: { include: { material: true } }, stock: true },
@@ -69,7 +70,7 @@ productosRouter.post("/", async (req, res) => {
 productosRouter.put("/:id", async (req, res) => {
   const body = req.body;
   const data: any = {};
-  const fields = ["nombre", "descripcion", "medidas", "manoObraEstructura", "manoObraTapiceria", "precioVenta", "moldeFileNombre", "moldeFileData"];
+  const fields = ["nombre", "descripcion", "medidas", "manoObraEstructura", "manoObraTapiceria", "precioVenta", "moldeFileNombre", "moldeFileData", "moldeUrl"];
   for (const f of fields) if (body[f] !== undefined) data[f] = body[f];
 
   if (Array.isArray(body.materiales)) {

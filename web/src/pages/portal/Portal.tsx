@@ -27,8 +27,10 @@ export default function Portal() {
     <div className="main-area" style={{ maxWidth: 900, margin: "0 auto" }}>
       <div className="topbar">
         <div>
-          <img src="/logo.png" alt="Pastel Studio" className="brand-logo-lg" />
-          <p className="page-subtitle">Portal de {user?.nombre}</p>
+          <div className="brand-logo-lg" aria-label="Pastel Studio">
+            <span className="brand-mark brand-mark-lg">P</span>
+          </div>
+          <p className="page-subtitle" style={{ marginTop: 14 }}>Portal de {user?.nombre}</p>
         </div>
         <Button variant="ghost" onClick={logout}>Cerrar sesión</Button>
       </div>
@@ -49,7 +51,7 @@ export default function Portal() {
           {proyecto.archivos.length === 0 ? <EmptyState>Todavía no hay archivos compartidos.</EmptyState> : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {proyecto.archivos.map((a) => (
-                <a key={a.id} href={a.fileData} download={a.nombre} className="alert-row" style={{ textDecoration: "none", color: "inherit" }}>
+                <a key={a.id} href={a.fileData} download={a.nombre} className="alert-row">
                   <span>{a.nombre}</span>
                   <span className="muted" style={{ fontSize: 12 }}>{fmtDate(a.createdAt)}</span>
                 </a>

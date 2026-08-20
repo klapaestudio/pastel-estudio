@@ -37,6 +37,8 @@ export const TIPO_PROVEEDOR = ["MATERIAL", "MANO_OBRA", "TRANSPORTE"] as const;
 
 export const TIPO_TAREA_AGENDA = ["INTERNA", "CLIENTE_RESERVABLE"] as const;
 
+export const PRIORIDAD_TAREA = ["BAJA", "MEDIA", "ALTA"] as const;
+
 export const CRONOMETRO_ESTADO = ["PARADO", "CORRIENDO", "PAUSADO"] as const;
 
 // Deadlines de aviso por tipo de producto (4.2)

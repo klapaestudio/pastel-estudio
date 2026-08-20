@@ -17,22 +17,26 @@ interface NavGroup {
 const NAV: NavGroup[] = [
   {
     title: "General",
-    items: [{ to: "/", label: "Panel de control", roles: ["ADMIN", "VENTAS", "FINANZAS", "TALLER"] }],
+    items: [
+      { to: "/", label: "Panel de control", roles: ["ADMIN", "VENTAS", "FINANZAS", "TALLER"] },
+      { to: "/mensajes", label: "Mensajes prearmados", roles: ["ADMIN", "VENTAS", "TALLER", "FINANZAS"] },
+      { to: "/agenda", label: "Agenda", roles: ["ADMIN", "VENTAS", "TALLER", "FINANZAS"] },
+      { to: "/facturacion", label: "Facturación", roles: ["ADMIN", "FINANZAS"] },
+      { to: "/dashboard-finanzas", label: "Dashboard financiero", roles: ["ADMIN", "FINANZAS"] },
+    ],
   },
   {
     title: "CRM",
     items: [
-      { to: "/prospectos", label: "Prospectos", roles: ["ADMIN", "VENTAS", "FINANZAS"] },
+      { to: "/prospectos", label: "Clientes potenciales", roles: ["ADMIN", "VENTAS", "FINANZAS"] },
       { to: "/clientes", label: "Clientes", roles: ["ADMIN", "VENTAS", "FINANZAS"] },
     ],
   },
   {
-    title: "Ventas",
+    title: "Presupuestos",
     items: [
       { to: "/presupuestador/objetos", label: "Presupuestador — Objetos", roles: ["ADMIN", "VENTAS", "FINANZAS"] },
       { to: "/presupuestador/arquitectura", label: "Presupuestador — Arquitectura", roles: ["ADMIN", "VENTAS", "FINANZAS"] },
-      { to: "/mensajes", label: "Mensajes prearmados", roles: ["ADMIN", "VENTAS", "TALLER", "FINANZAS"] },
-      { to: "/agenda", label: "Agenda", roles: ["ADMIN", "VENTAS", "TALLER", "FINANZAS"] },
     ],
   },
   {
@@ -40,13 +44,6 @@ const NAV: NavGroup[] = [
     items: [
       { to: "/productos", label: "Colección", roles: ["ADMIN", "TALLER", "FINANZAS", "VENTAS"] },
       { to: "/proveedores", label: "Proveedores", roles: ["ADMIN", "TALLER", "FINANZAS", "VENTAS"] },
-    ],
-  },
-  {
-    title: "Finanzas",
-    items: [
-      { to: "/facturacion", label: "Facturación", roles: ["ADMIN", "FINANZAS"] },
-      { to: "/dashboard-finanzas", label: "Dashboard financiero", roles: ["ADMIN", "FINANZAS"] },
     ],
   },
   {
@@ -73,7 +70,9 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <img src="/logo.png" alt="Pastel Studio" className="brand-logo" />
+        <div className="brand-logo" aria-label="Pastel Studio">
+          <span className="brand-mark">P</span>
+        </div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, overflowY: "auto" }}>
           {NAV.map((group) => {
             const items = group.items.filter((i) => i.roles.includes(user.role));

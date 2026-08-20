@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { etiquetaLabel, fmtDate, fmtMoney, PERFIL_LABEL } from "../../lib/format";
 import { Contacto } from "../../lib/types";
-import { Badge, Button, EmptyState, Input, Select } from "../../components/ui";
+import { Badge, Button, EmptyState, Input, PageHeader, Select } from "../../components/ui";
 import { ContactoModal } from "./ContactoModal";
 
 export default function Clientes() {
@@ -36,14 +36,13 @@ export default function Clientes() {
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">CRM</p>
-          <h1 className="page-title">Clientes</h1>
-          <p className="page-subtitle">Base de clientes, filtrable por línea de negocio</p>
-        </div>
-        <Button variant="primary" onClick={() => setEditing("new")}>+ Nuevo cliente</Button>
-      </div>
+      <PageHeader
+        number="06"
+        eyebrow="CRM"
+        title="Clientes"
+        subtitle="Base de clientes, filtrable por línea de negocio"
+        actions={<Button variant="primary" onClick={() => setEditing("new")}>+ Nuevo cliente</Button>}
+      />
 
       <div className="card" style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

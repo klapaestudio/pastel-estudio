@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { fmtDate, fmtMoney } from "../../lib/format";
-import { Badge, Button, Card, EmptyState, Field, Input, Modal, Select, Tabs } from "../../components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Tabs } from "../../components/ui";
 
 interface Proveedor { id: string; nombre: string; tipo: string; ciudad?: string; telefono?: string; contacto?: string; notas?: string; }
 interface Material { id: string; nombre: string; unidad: string; costoActualizado: number; stockEstado: string; proveedorId?: string; proveedor?: Proveedor; }
@@ -16,13 +16,7 @@ export default function Proveedores() {
   const [tab, setTab] = useState("proveedores");
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Producción</p>
-          <h1 className="page-title">Proveedores</h1>
-          <p className="page-subtitle">Materiales, mano de obra, transporte y pagos</p>
-        </div>
-      </div>
+      <PageHeader number="10" eyebrow="Producción" title="Proveedores" subtitle="Materiales, mano de obra, transporte y pagos" />
       <Tabs
         tabs={[
           { key: "proveedores", label: "Proveedores" },

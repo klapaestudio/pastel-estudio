@@ -257,6 +257,7 @@ model ProductoEstandar {
 
   moldeFileNombre String?
   moldeFileData   String? // data URL (demo local storage)
+  moldeUrl        String? // link externo (Drive, Dropbox, etc.) como alternativa a subir el archivo
 
   precioVenta Float @default(0)
 
@@ -342,6 +343,7 @@ model Cuota {
   costos Float @default(0)
   gastos Float @default(0)
   pagada Boolean @default(false)
+  fechaPago DateTime?
 
   comprobanteEmitido   Boolean @default(false)
   comprobanteTipo      String?
@@ -390,6 +392,8 @@ model TareaAgenda {
 
   fechaInicio DateTime
   fechaFin    DateTime
+  todoElDia   Boolean @default(false) // true = tarea del día sin horario puntual; false = bloquea horario en la grilla
+  prioridad   String  @default("MEDIA") // BAJA | MEDIA | ALTA
   ubicacion   String?
   notas       String?
 

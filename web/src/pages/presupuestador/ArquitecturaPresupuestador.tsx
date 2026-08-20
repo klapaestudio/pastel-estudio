@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { api, downloadPresupuestoPdf, openPresupuestoPdf } from "../../lib/api";
 import { fmtDate, fmtMoney, LINEA_LABEL, SERVICIO_LABEL } from "../../lib/format";
 import { Presupuesto } from "../../lib/types";
-import { Badge, Button, Card, EmptyState, Field, Input, Select, Textarea } from "../../components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Textarea } from "../../components/ui";
 import { ContactoAutocomplete } from "./ContactoAutocomplete";
 import { ValoresAdicionalesEditor } from "./ValoresAdicionalesEditor";
 import { calcPresupuesto } from "./calc";
@@ -41,19 +41,18 @@ export default function ArquitecturaPresupuestador() {
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Presupuestador</p>
-          <h1 className="page-title">Proyectos de arquitectura</h1>
-          <p className="page-subtitle">Alcance, línea, servicio y costes del proyecto</p>
-        </div>
-        <Button variant="primary" onClick={() => setParams({ nuevo: "1" })}>+ Nuevo presupuesto</Button>
-      </div>
+      <PageHeader
+        number="08"
+        eyebrow="Presupuestos"
+        title="Proyectos de arquitectura"
+        subtitle="Alcance, línea, servicio y costes del proyecto"
+        actions={<Button variant="primary" onClick={() => setParams({ nuevo: "1" })}>+ Nuevo presupuesto</Button>}
+      />
 
       <Card>
         {list.length === 0 ? <EmptyState>Todavía no armaste ningún presupuesto de arquitectura.</EmptyState> : (
           <table className="data-table">
-            <thead><tr><th>Título</th><th>Cliente/Prospecto</th><th>Línea</th><th>Servicio</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+            <thead><tr><th>Título</th><th>Cliente / Cliente potencial</th><th>Línea</th><th>Servicio</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead>
             <tbody>
               {list.map((p) => (
                 <tr key={p.id}>
@@ -83,7 +82,7 @@ const emptyForm = (contactoId: string | null): Partial<Presupuesto> => ({
   envioCosto: 0,
   plantillaPdf: "CLASICA",
   items: [],
-  valoresAdicionales: [{ concepto: "", monto: 0 }],
+  valoresAdicionales: [{ concepto: "Empleado de diseño", monto: 0 }],
 });
 
 function ArquitecturaEditor({ id, contactoId, onClose }: { id: string | null; contactoId: string | null; onClose: () => void }) {
@@ -123,19 +122,17 @@ function ArquitecturaEditor({ id, contactoId, onClose }: { id: string | null; co
 
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Arquitectura</p>
-          <h1 className="page-title">{id ? "Editar presupuesto" : "Nuevo presupuesto"}</h1>
-        </div>
-        <Button variant="ghost" onClick={onClose}>← Volver</Button>
-      </div>
+      <PageHeader
+        eyebrow="Arquitectura"
+        title={id ? "Editar presupuesto" : "Nuevo presupuesto"}
+        actions={<Button variant="ghost" onClick={onClose}>← Volver</Button>}
+      />
 
       <div className="grid" style={{ gridTemplateColumns: "2fr 1fr", alignItems: "start" }}>
         <div>
           <Card title="Datos generales">
             <div className="form-grid">
-              <Field label="Prospecto / Cliente">
+              <Field label="Cliente potencial / Cliente">
                 <ContactoAutocomplete value={contacto} onSelect={setContacto} />
               </Field>
               <Field label="Título"><Input value={form.titulo || ""} onChange={(e) => set("titulo", e.target.value)} /></Field>

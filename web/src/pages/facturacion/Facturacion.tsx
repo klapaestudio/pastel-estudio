@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { fmtDate, fmtMoney } from "../../lib/format";
-import { Badge, Button, Card, EmptyState, Field, Input, Modal, Select, Tabs } from "../../components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Tabs } from "../../components/ui";
 
 interface ContactoLite { id: string; nombre: string; }
-interface Cuota { id: string; numero: number; fecha: string; monto: number; costos: number; gastos: number; pagada: boolean; comprobanteEmitido: boolean; }
+interface Cuota {
+  id: string; numero: number; fecha: string; monto: number; costos: number; gastos: number;
+  pagada: boolean; fechaPago?: string | null; comprobanteEmitido: boolean;
+}
 interface Cobro { id: string; concepto: string; categoria?: string; gananciaTotal: number; contacto: ContactoLite; cuotas: Cuota[]; }
 interface ArcaConfig { cuitEstudio?: string; cuentaVinculada: boolean; puntoVentaDefault?: string; }
 
@@ -12,13 +15,7 @@ export default function Facturacion() {
   const [tab, setTab] = useState("cobros");
   return (
     <div>
-      <div className="topbar">
-        <div>
-          <p className="eyebrow">Finanzas</p>
-          <h1 className="page-title">Facturación</h1>
-          <p className="page-subtitle">Cobros, cuotas y facturación electrónica (ARCA)</p>
-        </div>
-      </div>
+      <PageHeader number="03" eyebrow="General" title="Facturación" subtitle="Cobros, cuotas y facturación electrónica (ARCA)" />
       <Tabs tabs={[{ key: "cobros", label: "Cobros" }, { key: "arca", label: "ARCA" }]} active={tab} onChange={setTab} />
       {tab === "cobros" && <CobrosTab />}
       {tab === "arca" && <ArcaTab />}
@@ -31,6 +28,9 @@ function CobrosTab() {
   const [contactos, setContactos] = useState<ContactoLite[]>([]);
   const [creating, setCreating] = useState(false);
   const [emitiendo, setEmitiendo] = useState<Cuota | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+  const [expandidos, setExpandidos] = useState<Set<string>>(new Set());
+
   const load = () => api.get<Cobro[]>("/facturacion/cobros").then(setList);
   useEffect(() => { load(); api.get<ContactoLite[]>("/contactos").then(setContactos); }, []);
 
@@ -39,40 +39,103 @@ function CobrosTab() {
     load();
   }
 
+  function toggle(id: string) {
+    setExpandidos((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const filtro = busqueda.trim().toLowerCase();
+  const filtrados = filtro ? list.filter((c) => c.contacto.nombre.toLowerCase().includes(filtro)) : list;
+
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+        <Input
+          placeholder="Buscar cliente…"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={{ maxWidth: 300 }}
+        />
         <Button variant="primary" onClick={() => setCreating(true)}>+ Nueva venta / cobro</Button>
       </div>
-      {list.length === 0 ? <Card><EmptyState>No hay cobros cargados.</EmptyState></Card> : (
-        list.map((c) => (
-          <Card key={c.id} title={`${c.contacto.nombre} — ${c.concepto}`}>
-            <table className="data-table">
-              <thead><tr><th>Cuota</th><th>Fecha</th><th>Monto</th><th>Costos</th><th>Gastos</th><th>Estado</th><th></th></tr></thead>
-              <tbody>
-                {c.cuotas.map((cu) => (
-                  <tr key={cu.id}>
-                    <td>{cu.numero}</td>
-                    <td>{fmtDate(cu.fecha)}</td>
-                    <td className="mono">{fmtMoney(cu.monto)}</td>
-                    <td className="mono">{fmtMoney(cu.costos)}</td>
-                    <td className="mono">{fmtMoney(cu.gastos)}</td>
-                    <td><Badge tone={cu.pagada ? "positive" : "warning"}>{cu.pagada ? "Cobrada" : "Pendiente"}</Badge></td>
-                    <td style={{ display: "flex", gap: 4 }}>
-                      {!cu.pagada && <Button size="sm" variant="ghost" onClick={() => marcarPagada(cu.id)}>Marcar cobrada</Button>}
-                      {cu.comprobanteEmitido ? (
-                        <Badge tone="positive">Comprobante emitido</Badge>
-                      ) : (
-                        <Button size="sm" variant="ghost" onClick={() => setEmitiendo(cu)}>Emitir comprobante</Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
-        ))
-      )}
+
+      <Card>
+        {filtrados.length === 0 ? (
+          <EmptyState>{filtro ? "Ningún cliente coincide con la búsqueda." : "No hay cobros cargados."}</EmptyState>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr><th></th><th>Cliente</th><th>Servicio</th><th>Monto abonado</th><th>Monto adeudado</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              {filtrados.map((c) => {
+                const abonado = c.cuotas.filter((cu) => cu.pagada).reduce((s, cu) => s + cu.monto, 0);
+                const adeudado = c.cuotas.filter((cu) => !cu.pagada).reduce((s, cu) => s + cu.monto, 0);
+                const hoy = new Date();
+                const atrasado = c.cuotas.some((cu) => !cu.pagada && new Date(cu.fecha) < hoy);
+                const abierto = expandidos.has(c.id);
+                return (
+                  <Fragment key={c.id}>
+                    <tr onClick={() => toggle(c.id)} style={{ cursor: "pointer" }}>
+                      <td className="muted" style={{ width: 18 }}>{abierto ? "▾" : "▸"}</td>
+                      <td style={{ fontWeight: 600 }}>{c.contacto.nombre}</td>
+                      <td>{c.concepto}</td>
+                      <td className="mono">{fmtMoney(abonado)}</td>
+                      <td className="mono">{fmtMoney(adeudado)}</td>
+                      <td>
+                        {adeudado === 0 ? (
+                          <Badge tone="positive">Al día</Badge>
+                        ) : atrasado ? (
+                          <Badge tone="negative">Atrasado</Badge>
+                        ) : (
+                          <Badge tone="warning">Pendiente</Badge>
+                        )}
+                      </td>
+                    </tr>
+                    {abierto && (
+                      <tr>
+                        <td colSpan={6} style={{ padding: 0, background: "var(--fill)" }}>
+                          <div style={{ padding: "10px 16px 16px 34px" }}>
+                            <table className="data-table">
+                              <thead>
+                                <tr><th>Cuota</th><th>Fecha</th><th>Monto</th><th>Pagó el</th><th>Estado</th><th></th></tr>
+                              </thead>
+                              <tbody>
+                                {c.cuotas.map((cu) => (
+                                  <tr key={cu.id}>
+                                    <td>{cu.numero}</td>
+                                    <td>{fmtDate(cu.fecha)}</td>
+                                    <td className="mono">{fmtMoney(cu.monto)}</td>
+                                    <td>{cu.fechaPago ? fmtDate(cu.fechaPago) : "—"}</td>
+                                    <td><Badge tone={cu.pagada ? "positive" : "warning"}>{cu.pagada ? "Pagada" : "Pendiente"}</Badge></td>
+                                    <td style={{ display: "flex", gap: 4 }}>
+                                      {!cu.pagada && <Button size="sm" variant="ghost" onClick={() => marcarPagada(cu.id)}>Marcar cobrada</Button>}
+                                      {cu.comprobanteEmitido ? (
+                                        <Badge tone="positive">Comprobante emitido</Badge>
+                                      ) : (
+                                        <Button size="sm" variant="ghost" onClick={() => setEmitiendo(cu)}>Emitir comprobante</Button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </Card>
+
       {creating && <NuevoCobroModal contactos={contactos} onClose={() => setCreating(false)} onSaved={load} />}
       {emitiendo && <EmitirComprobanteModal cuota={emitiendo} onClose={() => setEmitiendo(null)} onSaved={load} />}
     </div>
